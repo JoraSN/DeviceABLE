@@ -8,6 +8,9 @@ import subprocess
 import os
 
 
+pyautogui.FAILSAFE = False
+
+
 # Initialize mediapipe
 mp_drawing = mp.solutions.drawing_utils
 mp_face_mesh = mp.solutions.face_mesh
@@ -27,9 +30,6 @@ mouth_text = ""
 click_text = ""
 
 windowName = "Handless Computer Control"
-
-EYE_CLOSED_THRESHOLD = 6
-MOUTH_OPEN_THRESHOLD = 38
 
 
 flag_file = "first_run.txt"
@@ -70,19 +70,24 @@ threading.Thread(target=open_keyboard).start()
 
 
 def ear_value(value):
+    global EYE_CLOSED_THRESHOLD
     EYE_CLOSED_THRESHOLD = value
 
 
 def mar_value(value):
+    global MOUTH_OPEN_THRESHOLD
     MOUTH_OPEN_THRESHOLD = value
 
 
 cv2.namedWindow(windowName)
-cv2.createTrackbar("Eyes Val", windowName, 6, 20, ear_value)
-cv2.createTrackbar("Mouth Val", windowName, 38, 55, mar_value)
+cv2.createTrackbar("Eyes Val", windowName, 8, 20, ear_value)
+cv2.createTrackbar("Mouth Val", windowName, 30, 55, mar_value)
 
 
 while cap.isOpened():
+    # Get the threshold values from the trackbar and assign them to the variables
+    EYE_CLOSED_THRESHOLD = cv2.getTrackbarPos("Eyes Val", windowName)
+    MOUTH_OPEN_THRESHOLD = cv2.getTrackbarPos("Mouth Val", windowName)
     success, image = cap.read()
 
     # Flip the image horizontally for a later selfie-view display
@@ -161,7 +166,6 @@ while cap.isOpened():
             bottom_lip = lips_pixels[16]  # Bottom lip landmark index
             mouth_open_distance = np.linalg.norm(bottom_lip - top_lip)  # Euclidean distance
 
-            # Set a threshold value to determine the mouth-opening gesture
             
             # Convert it to the NumPy array
             face_2d = np.array(face_2d, dtype=np.float64)
@@ -195,18 +199,18 @@ while cap.isOpened():
             # print(y)
 
             # See where the user's head tilting
-            if y < -8:
+            if y < -7:
                 text = "Looking Left"
-                pyautogui.move(-15, 0)
-            elif y > 8:
+                pyautogui.move(-10, 0)
+            elif y > 7:
                 text = "Looking Right"
-                pyautogui.move(15, 0)
-            elif x < -8:
+                pyautogui.move(10, 0)
+            elif x < -7:
                 text = "Looking Down"
-                pyautogui.move(0, 15)
-            elif x > 8:
+                pyautogui.move(0, 10)
+            elif x > 7:
                 text = "Looking Up"
-                pyautogui.move(0, -15)
+                pyautogui.move(0, -10)
             else:
                 text = "Forward"
                 # Check if the left eye is closed
