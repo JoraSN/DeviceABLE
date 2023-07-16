@@ -7,7 +7,9 @@ class OnScreenKeyboard(tk.Tk):
         super().__init__()
         # Configure the root window
         self.title("On-Screen Keyboard")
-        self.geometry("1035x350")
+        self.geometry("1145x455")
+        # add padding to the frame
+        self.config(padx=45, pady=45)
         # Make the window always appear on top
         self.attributes("-topmost", True)
         self.bind("<Motion>", self.check_hover)  # Track mouse movements
